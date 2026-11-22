@@ -69,5 +69,16 @@ export function presetFromJson(text, limits) {
   return normalize(Object.entries(settings), limits);
 }
 
-export const serializeState = S => new URLSearchParams({ ...S, colors: S.colors.map(c => c.slice(1)).join(','),
-  bg: S.bg.slice(1), reverse: S.reverse ? 1 : 0 }).toString().replaceAll('%2C', ',');
+/**
+ * Состояние → hash. Пишутся только параметры, отличные от DEFAULTS, поэтому
+ * значения в DEFAULTS менять нельзя: старые короткие ссылки начнут открываться иначе.
+ */
+export function serializeState(S) {
+  const out = {};
+  for (const k in DEFAULTS) {
+    const v = S[k], d = DEFAULTS[k];
+    if (k === 'colors') { if (v.join() !== d.join()) out.colors = v.map(c => c.slice(1)).join(','); }
+    else if (v !== d) out[k] = k === 'bg' ? v.slice(1) : k === 'reverse' ? (v ? 1 : 0) : v;
+  }
+  return new URLSearchParams(out).toString().replaceAll('%2C', ',');
+}

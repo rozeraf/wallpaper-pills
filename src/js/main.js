@@ -94,7 +94,8 @@ function update(rebuildColors = true) {
       const b = document.createElement('button'); b.title = 'Копировать'; b.dataset.c = c;
       b.innerHTML = `<i style="background:${c}"></i>${c}`; return b;
     }));
-    history.replaceState(null, '', '#' + serializeState(S));
+    const hash = serializeState(S); // при настройках по умолчанию — чистый адрес без «#»
+    history.replaceState(null, '', hash ? '#' + hash : location.pathname + location.search);
   });
 }
 
