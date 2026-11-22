@@ -18,13 +18,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v7
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 22
-          cache: npm
+          bun-version: 1.4.5
 
-      - run: npm ci
-      - run: npm run build
+      - run: bun run build
 
       # main → продакшен (wallpaper-pills.pages.dev), dev → превью (dev.wallpaper-pills.pages.dev)
       - name: Deploy
@@ -32,4 +30,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: bun
           command: pages deploy dist --project-name=wallpaper-pills --branch=${{ github.ref_name }} --commit-dirty=true
