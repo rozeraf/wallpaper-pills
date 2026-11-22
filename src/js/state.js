@@ -18,25 +18,55 @@ export function ensureColors(s) {
   return s;
 }
 
+/** @typedef {(key: string) => [number, number] | null} Limits — допустимый диапазон числового параметра */
+
 /**
- * Разбирает hash. Некорректные значения игнорируются.
- * @param {string} hash
- * @param {(key: string) => [number, number] | null} limits — допустимый диапазон числового параметра
+ * Собирает корректное состояние из пар ключ–значение (из hash или JSON).
+ * Значения могут быть строками или «родными» типами JSON. Некорректные игнорируются.
+ * @param {Iterable<[string, unknown]>} entries
+ * @param {Limits} limits
  */
-export function parseState(hash, limits) {
+function normalize(entries, limits) {
   const s = freshState();
-  let q; try { q = new URLSearchParams(hash.replace(/^#/, '')); } catch { return s; }
-  for (const [k, v] of q) {
-    if (k === 'colors') { const cs = v.split(',').filter(c => HEX.test(c)).map(normHex); if (cs.length) s.colors = cs.slice(0, MAX_COLORS); }
-    else if (k === 'bg') { if (HEX.test(v)) s.bg = normHex(v); }
-    else if (k === 'reverse') s.reverse = v === '1';
+  for (const [k, v] of entries) {
+    if (k === 'colors') {
+      const list = Array.isArray(v) ? v : typeof v === 'string' ? v.split(',') : [];
+      const cs = list.filter(c => typeof c === 'string' && HEX.test(c)).map(normHex);
+      if (cs.length) s.colors = cs.slice(0, MAX_COLORS);
+    }
+    else if (k === 'bg') { if (typeof v === 'string' && HEX.test(v)) s.bg = normHex(v); }
+    else if (k === 'reverse') s.reverse = v === true || v === '1' || v === 1;
     else if (k in ENUMS) { if (ENUMS[k].includes(v)) s[k] = v; }
     else if (typeof DEFAULTS[k] === 'number') {
-      const n = parseFloat(v), lim = limits(k);
+      const n = typeof v === 'number' ? v : typeof v === 'string' ? parseFloat(v) : NaN, lim = limits(k);
       if (Number.isFinite(n)) s[k] = lim ? clamp(n, lim[0], lim[1]) : n;
     }
   }
   return ensureColors(s);
+}
+
+/** Разбирает hash адреса. */
+export function parseState(hash, limits) {
+  let q; try { q = new URLSearchParams(hash.replace(/^#/, '')); } catch { return freshState(); }
+  return normalize(q, limits);
+}
+
+/* ---------- пресеты в JSON ---------- */
+const PRESET_APP = 'wallpaper-pills', PRESET_VERSION = 1;
+
+export const presetToJson = S => JSON.stringify({ app: PRESET_APP, version: PRESET_VERSION, settings: S }, null, 2);
+
+/**
+ * Разбирает JSON пресета. Принимает и обёртку { app, version, settings }, и голый объект настроек.
+ * @throws {Error} если это не JSON или в нём нет ни одной известной настройки
+ */
+export function presetFromJson(text, limits) {
+  const data = JSON.parse(text);
+  const settings = data && typeof data === 'object' && data.settings && typeof data.settings === 'object' ? data.settings : data;
+  if (!settings || typeof settings !== 'object' || Array.isArray(settings)) throw new Error('not an object');
+  const known = Object.keys(settings).filter(k => k in DEFAULTS);
+  if (!known.length) throw new Error('no known settings');
+  return normalize(Object.entries(settings), limits);
 }
 
 export const serializeState = S => new URLSearchParams({ ...S, colors: S.colors.map(c => c.slice(1)).join(','),

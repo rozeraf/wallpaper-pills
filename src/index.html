@@ -69,6 +69,16 @@
     </div>
   </fieldset>
 
+  <fieldset>
+    <legend>Пресет</legend>
+    <div class="pair">
+      <button class="btn" id="presetSave"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>Сохранить</button>
+      <button class="btn" id="presetLoad"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5M5 19h14"/></svg>Загрузить</button>
+    </div>
+    <input type="file" id="presetFile" accept=".json,application/json" hidden>
+    <p class="hint">Настройки в JSON-файле. Файл можно и просто перетащить на страницу.</p>
+  </fieldset>
+
   <div class="footer">
     <button class="btn btn-ghost" id="reset">Сбросить настройки</button>
   </div>

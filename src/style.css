@@ -195,6 +195,16 @@ input[type=range]:disabled { opacity: .35; cursor: not-allowed; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .btn.primary:hover { background: var(--accent-hi); border-color: var(--accent-hi); }
 .btn-block { width: 100%; margin-top: 12px; justify-content: center; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pair .btn { justify-content: center; }
+
+/* перетаскивание пресета на страницу */
+body.dropping::after {
+  content: "Отпусти, чтобы загрузить пресет"; position: fixed; inset: 12px; z-index: 20;
+  display: grid; place-items: center; border-radius: var(--r-lg);
+  border: 2px dashed var(--accent); background: rgb(12 12 15 / .82); color: #fff;
+  font-size: 18px; font-weight: 500; pointer-events: none;
+}
 .btn-ghost { width: 100%; justify-content: center; background: transparent; color: var(--muted); }
 .btn-ghost:hover { color: var(--text); background: var(--hover); }
 kbd {

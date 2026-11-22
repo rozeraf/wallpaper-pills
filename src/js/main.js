@@ -1,6 +1,6 @@
 // UI: связывает контролы, состояние и превью.
 import { clamp, randomPalette } from './color.js';
-import { DEFAULTS, MAX_COLORS, freshState, ensureColors, parseState, serializeState } from './state.js';
+import { DEFAULTS, MAX_COLORS, freshState, ensureColors, parseState, serializeState, presetToJson, presetFromJson } from './state.js';
 import { build, toSvg, toCanvas } from './render.js';
 
 const $ = id => document.getElementById(id);
@@ -123,6 +123,34 @@ addEventListener('keydown', e => {
   if (key !== 'r' && key !== 'к') return; // «к» — та же клавиша в русской раскладке
   if (e.ctrlKey || e.metaKey || e.altKey || e.target.matches('input[type=number], select')) return;
   randomize();
+});
+
+/* ---------- пресеты ---------- */
+$('presetSave').onclick = () =>
+  download(new Blob([presetToJson(S)], { type: 'application/json' }), `pills-preset-${S.mode}-${S.w}x${S.h}.json`);
+
+async function importPreset(file) {
+  if (!file) return;
+  try {
+    if (file.size > 100_000) throw new Error('too big');
+    S = presetFromJson(await file.text(), limits);
+    syncInputs(); update();
+    toast('Пресет загружен ✓');
+  } catch { toast('Не удалось прочитать пресет'); }
+}
+$('presetLoad').onclick = () => $('presetFile').click();
+$('presetFile').onchange = e => { importPreset(e.target.files[0]); e.target.value = ''; };
+
+// перетаскивание файла на страницу
+let dragDepth = 0;
+const hasFiles = e => [...(e.dataTransfer?.types || [])].includes('Files');
+addEventListener('dragenter', e => { if (hasFiles(e)) { dragDepth++; document.body.classList.add('dropping'); } });
+addEventListener('dragleave', e => { if (hasFiles(e) && --dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dropping'); } });
+addEventListener('dragover', e => { if (hasFiles(e)) e.preventDefault(); });
+addEventListener('drop', e => {
+  if (!hasFiles(e)) return;
+  e.preventDefault(); dragDepth = 0; document.body.classList.remove('dropping');
+  importPreset(e.dataTransfer.files[0]);
 });
 
 $('dlSvg').onclick = () => download(new Blob([toSvg(build(S))], { type: 'image/svg+xml' }), fname('svg'));
