@@ -1,0 +1,13 @@
+{
+  "name": "wallpaper-pills",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node build.mjs --watch",
+    "build": "node build.mjs",
+    "deploy": "npm run build && wrangler pages deploy dist --project-name=wallpaper-pills"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

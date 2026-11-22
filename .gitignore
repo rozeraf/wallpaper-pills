@@ -1,0 +1,36 @@
+# Зависимости
+node_modules/
+
+# Сборка
+dist/
+
+# Cloudflare / wrangler
+.wrangler/
+.dev.vars
+.dev.vars.*
+
+# Окружение и секреты
+.env
+.env.*
+!.env.example
+
+# Логи
+*.log
+npm-debug.log*
+
+# Кэши инструментов
+.cache/
+.eslintcache
+*.tsbuildinfo
+
+# Редакторы и ОС
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Локальные настройки Claude Code
+.claude/settings.local.json
