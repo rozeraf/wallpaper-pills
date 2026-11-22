@@ -80,7 +80,11 @@ function syncInputs() {
 let raf;
 function update(rebuildColors = true) {
   if (rebuildColors) renderColors();
-  for (const k in sliders) $(k + 'V').textContent = sliders[k](S[k]);
+  for (const k in sliders) {
+    const el = $(k);
+    $(k + 'V').textContent = sliders[k](S[k]);
+    el.style.setProperty('--p', ((S[k] - el.min) / (el.max - el.min) * 100) + '%');
+  }
   cancelAnimationFrame(raf);
   raf = requestAnimationFrame(() => {
     const g = build(S);
@@ -123,9 +127,9 @@ addEventListener('keydown', e => {
 
 $('dlSvg').onclick = () => download(new Blob([toSvg(build(S))], { type: 'image/svg+xml' }), fname('svg'));
 $('dlPng').onclick = () => {
-  const btn = $('dlPng'); btn.disabled = true; btn.textContent = 'Готовлю…';
+  const btn = $('dlPng'), label = btn.querySelector('span'); btn.disabled = true; label.textContent = 'Готовлю…';
   setTimeout(() => toCanvas(build(S)).toBlob(b => {
-    btn.disabled = false; btn.textContent = 'Скачать PNG';
+    btn.disabled = false; label.textContent = 'Скачать PNG';
     b ? download(b, fname('png')) : toast('Браузер не смог создать PNG такого размера — попробуй SVG');
   }, 'image/png'), 20);
 };
