@@ -1,5 +1,5 @@
 // UI: связывает контролы, состояние и превью.
-import { clamp, randomPalette } from './color.js';
+import { clamp, randomPalette, colorName } from './color.js';
 import { DEFAULTS, MAX_COLORS, freshState, ensureColors, parseState, serializeState, presetToJson, presetFromJson } from './state.js';
 import { build, toSvg, toCanvas } from './render.js';
 
@@ -33,7 +33,11 @@ function download(blob, name) {
   const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: name }); a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
-const fname = ext => `pills-${S.w}x${S.h}.${ext}`;
+const hash36 = str => { let h = 0x811c9dc5; for (const c of str) h = Math.imul(h ^ c.codePointAt(0), 16777619); return (h >>> 0).toString(36); };
+const fname = ext => {
+  const names = [...new Set([S.colors[0], S.colors.at(-1)].map(colorName))].join('-');
+  return `pills-${S.w}x${S.h}-${names}-${hash36(serializeState(S))}.${ext}`;
+};
 
 function randomize() {
   S.colors = randomPalette(S.mode, S.colors.length >= 3 ? S.colors.length : S.count);
@@ -128,7 +132,7 @@ addEventListener('keydown', e => {
 
 /* ---------- пресеты ---------- */
 $('presetSave').onclick = () =>
-  download(new Blob([presetToJson(S)], { type: 'application/json' }), `pills-preset-${S.mode}-${S.w}x${S.h}.json`);
+  download(new Blob([presetToJson(S)], { type: 'application/json' }), fname('json'));
 
 async function importPreset(file) {
   if (!file) return;

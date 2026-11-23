@@ -30,6 +30,28 @@ function labToLinear([L, a, b]) {
 const inGamut = rgb => rgb.every(c => c >= -1e-4 && c <= 1 + 1e-4);
 
 // Цвета вне sRGB не обрезаем по каналам (это сдвигает оттенок), а уменьшаем хрому при том же L и hue.
+const HUES = [['pink', 0], ['red', 25], ['orange', 55], ['yellow', 100], ['lime', 125], ['green', 145], ['teal', 175],
+  ['cyan', 200], ['blue', 260], ['indigo', 282], ['violet', 300], ['purple', 315], ['magenta', 335]];
+
+export function colorName(hex) {
+  const [L, a, b] = toLab(hex), C = Math.hypot(a, b), h = (Math.atan2(b, a) * 180 / Math.PI + 360) % 360;
+  if (L > .75 && C > .015 && C < .07 && h > 50 && h < 115) return 'beige';
+  if (L < .25 || C < .04) return L < .3 ? 'black' : L > .9 ? 'white' : 'gray';
+  const dist = x => Math.min(Math.abs(h - x), 360 - Math.abs(h - x));
+  const [n] = HUES.reduce((p, q) => dist(q[1]) < dist(p[1]) ? q : p);
+  const is = (...a) => a.includes(n);
+  if (is('red') && L < .45) return 'maroon';
+  if (is('orange') && L < .55) return 'brown';
+  if (is('yellow', 'lime') && L < .6) return 'olive';
+  if (is('green', 'teal') && L > .85 && C < .2) return 'mint';
+  if (is('cyan', 'blue') && L > .75 && C < .13) return 'sky';
+  if (is('blue', 'indigo') && L < .4) return 'navy';
+  if (is('indigo', 'violet', 'purple') && L > .78) return 'lavender';
+  if (is('red', 'magenta') && L > .78) return 'pink';
+  if (is('cyan') && L < .6) return 'teal';
+  return n;
+}
+
 export function fromLab([L, a, b]) {
   L = clamp(L, 0, 1);
   let rgb = labToLinear([L, a, b]);
