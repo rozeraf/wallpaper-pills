@@ -2,6 +2,7 @@
 import { clamp, randomPalette, colorName } from './color.js';
 import { DEFAULTS, MAX_COLORS, freshState, ensureColors, parseState, serializeState, presetToJson, presetFromJson } from './state.js';
 import { build, toSvg, toCanvas } from './render.js';
+import { lang, t, setLang } from './i18n.js';
 
 const $ = id => document.getElementById(id);
 const limits = k => { const el = $(k); return el && el.min !== '' ? [+el.min, +el.max] : null; };
@@ -20,13 +21,13 @@ function toast(msg) {
   clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1600);
 }
 
-async function copy(text, msg = 'Скопировано') {
+async function copy(text, msg = t('copied')) {
   try {
     if (navigator.clipboard && isSecureContext) await navigator.clipboard.writeText(text);
     else { const ta = Object.assign(document.createElement('textarea'), { value: text });
       document.body.append(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
     toast(msg + ' ✓');
-  } catch { toast('Не удалось скопировать'); }
+  } catch { toast(t('copyFailed')); }
 }
 
 function download(blob, name) {
@@ -45,8 +46,7 @@ function randomize() {
 }
 
 /* ---------- рендер UI ---------- */
-const HINTS = { auto: 'Один цвет → шкала оттенков от светлого к тёмному.',
-  gradient: 'Плавный переход через все цвета, кол-во задаётся ниже.', raw: 'Каждый цвет — один элемент, без интерполяции.' };
+const HINTS = { auto: 'hintAuto', gradient: 'hintGradient', raw: 'hintRaw' };
 
 function renderColors() {
   const box = $('colors'); box.replaceChildren();
@@ -54,20 +54,20 @@ function renderColors() {
   shown.forEach((c, i) => {
     const chip = document.createElement('div'); chip.className = 'chip';
     const inp = Object.assign(document.createElement('input'), { type: 'color', value: c, title: c });
-    inp.setAttribute('aria-label', `Цвет ${i + 1}`);
+    inp.setAttribute('aria-label', `${t('color')} ${i + 1}`);
     inp.oninput = () => { S.colors[i] = inp.value; inp.title = inp.value; update(false); };
     chip.append(inp);
     if (shown.length > (S.mode === 'gradient' ? 2 : 1)) {
-      const x = Object.assign(document.createElement('button'), { textContent: '×', title: 'Удалить' });
+      const x = Object.assign(document.createElement('button'), { textContent: '×', title: t('remove') });
       x.onclick = () => { S.colors.splice(i, 1); update(); }; chip.append(x);
     }
     box.append(chip);
   });
   if (S.mode !== 'auto' && S.colors.length < MAX_COLORS) {
-    const add = Object.assign(document.createElement('button'), { className: 'btn sm', textContent: '+', title: 'Добавить цвет' });
+    const add = Object.assign(document.createElement('button'), { className: 'btn sm', textContent: '+', title: t('addColor') });
     add.onclick = () => { S.colors.push(S.colors.at(-1)); update(); }; box.append(add);
   }
-  $('modeHint').textContent = HINTS[S.mode];
+  $('modeHint').textContent = t(HINTS[S.mode]);
   $('lightDark').hidden = S.mode !== 'auto';
   $('count').disabled = S.mode === 'raw';
 }
@@ -95,7 +95,7 @@ function update(rebuildColors = true) {
     $('preview').innerHTML = toSvg(g);
     $('preview').style.setProperty('--ar', `${g.W}/${g.H}`);
     $('palette').replaceChildren(...g.colors.map(c => {
-      const b = document.createElement('button'); b.title = 'Копировать'; b.dataset.c = c;
+      const b = document.createElement('button'); b.title = t('copyHex'); b.dataset.c = c;
       b.innerHTML = `<i style="background:${c}"></i>${c}`; return b;
     }));
     const hash = serializeState(S); // при настройках по умолчанию — чистый адрес без «#»
@@ -120,7 +120,7 @@ $('reverse').onchange = e => { S.reverse = e.target.checked; update(false); };
 $('random').onclick = randomize;
 $('reset').onclick = () => { S = freshState(); syncInputs(); update(); };
 $('palette').onclick = e => { const b = e.target.closest('button'); if (b) copy(b.dataset.c, b.dataset.c); };
-$('share').onclick = () => copy(location.href, 'Ссылка скопирована');
+$('share').onclick = () => copy(location.href, t('linkCopied'));
 
 addEventListener('hashchange', () => { S = loadState(); syncInputs(); update(); });
 addEventListener('keydown', e => {
@@ -140,8 +140,8 @@ async function importPreset(file) {
     if (file.size > 100_000) throw new Error('too big');
     S = presetFromJson(await file.text(), limits);
     syncInputs(); update();
-    toast('Пресет загружен ✓');
-  } catch { toast('Не удалось прочитать пресет'); }
+    toast(t('presetLoaded') + ' ✓');
+  } catch { toast(t('presetFailed')); }
 }
 $('presetLoad').onclick = () => $('presetFile').click();
 $('presetFile').onchange = e => { importPreset(e.target.files[0]); e.target.value = ''; };
@@ -160,10 +160,10 @@ addEventListener('drop', e => {
 
 $('dlSvg').onclick = () => download(new Blob([toSvg(build(S))], { type: 'image/svg+xml' }), fname('svg'));
 $('dlPng').onclick = () => {
-  const btn = $('dlPng'), label = btn.querySelector('span'); btn.disabled = true; label.textContent = 'Готовлю…';
+  const btn = $('dlPng'), label = btn.querySelector('span'); btn.disabled = true; label.textContent = t('preparing');
   setTimeout(() => toCanvas(build(S)).toBlob(b => {
-    btn.disabled = false; label.textContent = 'Скачать PNG';
-    b ? download(b, fname('png')) : toast('Браузер не смог создать PNG такого размера — попробуй SVG');
+    btn.disabled = false; label.textContent = t('png');
+    b ? download(b, fname('png')) : toast(t('pngFailed'));
   }, 'image/png'), 20);
 };
 
@@ -171,7 +171,10 @@ $('dlPng').onclick = () => {
 {
   const dpr = devicePixelRatio || 1, sw = Math.round(screen.width * dpr), sh = Math.round(screen.height * dpr);
   if (sw >= 100 && sh >= 100 && ![...$('preset').options].some(o => o.value === `${sw}x${sh}`))
-    $('preset').prepend(new Option(`${sw}×${sh} (мой экран)`, `${sw}x${sh}`));
+  {
+    const o = new Option('', `${sw}x${sh}`); o.dataset.i18nSuffix = 'myScreen'; $('preset').prepend(o);
+  }
 }
 
-syncInputs(); update();
+document.querySelectorAll('[data-lang]').forEach(b => b.onclick = () => { setLang(b.dataset.lang); update(); });
+setLang(lang); syncInputs(); update();

@@ -13,6 +13,7 @@ src/
     color.js      OKLab, градиенты, оттенки, случайные палитры
     state.js      состояние ↔ hash адреса
     render.js     геометрия, SVG и canvas
+    i18n.js       строки интерфейса ru/en, переключение языка
     main.js       UI и события
 build.mjs         сборка src → dist и dev-сервер (Bun.build, Bun.serve)
 ```
