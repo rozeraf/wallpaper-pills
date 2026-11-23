@@ -1,34 +1,42 @@
 /* ---------- токены ---------- */
 :root {
-  --bg: #0c0c0f;
-  --panel: #131317;
-  --card: #1a1a20;
-  --field: #0f0f13;
-  --hover: #24242c;
-  --line: #2a2a33;
-  --line-strong: #3a3a46;
-  --text: #ececf1;
-  --muted: #8e8e9c;
-  --faint: #5d5d6b;
-  --accent: #9965f0;
-  --accent-hi: #b18bff;
-  --accent-soft: rgb(153 101 240 / .16);
-  --on-accent: #fff;
-  --shadow: 0 20px 60px rgb(0 0 0 / .55), 0 2px 8px rgb(0 0 0 / .4);
-  --glow: rgb(153 101 240 / .10);
-  --r-sm: 6px; --r: 10px; --r-lg: 14px;
+  /* нейтральная серая шкала без оттенка */
+  --bg: #0a0a0a;
+  --panel: #0f0f0f;
+  --card: #161616;
+  --field: #1c1c1c;
+  --hover: #262626;
+  --line: #262626;
+  --line-strong: #383838;
+  --text: #fafafa;
+  --muted: #a1a1a1;
+  --faint: #6b6b6b;
+  --seg: #1c1c1c; --seg-on: #2e2e2e;
+  /* акцент — оттенок основного цвета обоев: --ah (hue) и --ac (chroma) ставит JS */
+  --ah: 298; --ac: .16;
+  --accent: oklch(.72 var(--ac) var(--ah));
+  --accent-hi: oklch(.79 var(--ac) var(--ah));
+  --accent-soft: oklch(.72 var(--ac) var(--ah) / .2);
+  --on-accent: #0a0a0a;
+  --shadow: 0 16px 48px rgb(0 0 0 / .6), 0 2px 6px rgb(0 0 0 / .4);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / .4);
+  --r-sm: 6px; --r: 8px; --r-lg: 12px;
   --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: dark;
 }
+:root.neutral { --accent: #e5e5e5; --accent-hi: #fff; --accent-soft: rgb(255 255 255 / .14); }
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: #eeeef3; --panel: #f8f8fb; --card: #ffffff; --field: #f3f3f7; --hover: #ececf2;
-    --line: #e1e1e9; --line-strong: #cdcdd8; --text: #18181d; --muted: #6a6a78; --faint: #9a9aa8;
-    --accent: #7c45e0; --accent-hi: #6a35cc; --accent-soft: rgb(124 69 224 / .12);
-    --shadow: 0 20px 50px rgb(30 20 60 / .18), 0 2px 6px rgb(30 20 60 / .08);
-    --glow: rgb(124 69 224 / .08);
+    --bg: #f5f5f5; --panel: #fafafa; --card: #ffffff; --field: #ffffff; --hover: #f0f0f0;
+    --line: #e5e5e5; --line-strong: #d4d4d4; --text: #0a0a0a; --muted: #737373; --faint: #a3a3a3;
+    --seg: #f0f0f0; --seg-on: #ffffff;
+    --accent: oklch(.55 var(--ac) var(--ah)); --accent-hi: oklch(.48 var(--ac) var(--ah));
+    --accent-soft: oklch(.55 var(--ac) var(--ah) / .14); --on-accent: #fff;
+    --shadow: 0 16px 40px rgb(0 0 0 / .12), 0 2px 6px rgb(0 0 0 / .06);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / .08);
     color-scheme: light;
   }
+  :root.neutral { --accent: #171717; --accent-hi: #404040; --accent-soft: rgb(0 0 0 / .08); }
 }
 
 /* ---------- база ---------- */
@@ -57,16 +65,16 @@ aside {
 .brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
 .logo { display: flex; height: 26px; }
 .lang { margin-left: auto; align-self: flex-start; display: flex; gap: 2px; padding: 2px; border-radius: 8px;
-  background: var(--field); border: 1px solid var(--line); }
+  background: var(--seg); border: 1px solid var(--line); }
 .lang button { padding: 2px 7px; border: 0; border-radius: 6px; background: none; color: var(--faint);
   font-size: 11px; font-weight: 600; letter-spacing: .04em; cursor: pointer; transition: background .15s, color .15s; }
 .lang button:hover { color: var(--text); }
-.lang [aria-pressed=true] { background: var(--hover); color: var(--text); }
+.lang [aria-pressed=true] { background: var(--seg-on); color: var(--text); box-shadow: var(--shadow-sm); }
 .logo i { width: 15px; height: 26px; border-radius: 99px; box-shadow: 0 0 0 2px var(--panel); }
 .logo i + i { margin-left: -6px; }
-.logo i:nth-child(1) { background: #e6d8ff; }
-.logo i:nth-child(2) { background: var(--accent); }
-.logo i:nth-child(3) { background: #3b1773; }
+.logo i:nth-child(1) { background: oklch(.92 calc(var(--ac) * .35) var(--ah)); }
+.logo i:nth-child(2) { background: oklch(.66 var(--ac) var(--ah)); }
+.logo i:nth-child(3) { background: oklch(.36 calc(var(--ac) * .8) var(--ah)); }
 
 fieldset {
   margin: 0; min-width: 0; padding: 12px 14px 14px;
@@ -163,7 +171,7 @@ input[type=range]:disabled { opacity: .35; cursor: not-allowed; }
 /* сегменты */
 .seg {
   display: flex; gap: 2px; padding: 3px; border-radius: var(--r); position: relative;
-  background: var(--field); border: 1px solid var(--line);
+  background: var(--seg); border: 1px solid var(--line);
 }
 .seg-wide { margin-bottom: 12px; }
 .seg input { position: absolute; opacity: 0; pointer-events: none; }
@@ -172,7 +180,7 @@ input[type=range]:disabled { opacity: .35; cursor: not-allowed; }
   color: var(--muted); white-space: nowrap; transition: background .15s, color .15s;
 }
 .seg label:hover { color: var(--text); }
-.seg input:checked + label { background: var(--hover); color: var(--text); box-shadow: 0 1px 2px rgb(0 0 0 / .25); }
+.seg input:checked + label { background: var(--seg-on); color: var(--text); box-shadow: var(--shadow-sm); }
 .seg input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: -2px; }
 
 /* чипы цветов */
@@ -211,7 +219,7 @@ input[type=range]:disabled { opacity: .35; cursor: not-allowed; }
 body.dropping::after {
   content: attr(data-drop); position: fixed; inset: 12px; z-index: 20;
   display: grid; place-items: center; border-radius: var(--r-lg);
-  border: 2px dashed var(--accent); background: rgb(12 12 15 / .82); color: #fff;
+  border: 2px dashed var(--accent); background: rgb(10 10 10 / .85); color: #fafafa;
   font-size: 18px; font-weight: 500; pointer-events: none;
 }
 .btn-ghost { width: 100%; justify-content: center; background: transparent; color: var(--muted); }
@@ -226,7 +234,6 @@ kbd {
 main {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
   padding: 28px; min-width: 0; min-height: 0;
-  background: radial-gradient(ellipse at 50% 40%, var(--glow), transparent 65%);
 }
 .stage { flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; container-type: size; }
 #preview {

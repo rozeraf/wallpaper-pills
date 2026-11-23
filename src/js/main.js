@@ -1,5 +1,5 @@
 // UI: связывает контролы, состояние и превью.
-import { clamp, randomPalette, colorName } from './color.js';
+import { clamp, toLab, randomPalette, colorName } from './color.js';
 import { DEFAULTS, MAX_COLORS, freshState, ensureColors, parseState, serializeState, presetToJson, presetFromJson } from './state.js';
 import { build, toSvg, toCanvas } from './render.js';
 import { lang, t, setLang } from './i18n.js';
@@ -81,9 +81,19 @@ function syncInputs() {
   for (const k in sliders) $(k).value = S[k];
 }
 
+// акцент интерфейса — оттенок основного цвета обоев; почти серый цвет даёт нейтральный акцент
+function setAccent(hex) {
+  const [, a, b] = toLab(hex), c = Math.hypot(a, b), root = document.documentElement;
+  const neutral = c < .04;
+  root.classList.toggle('neutral', neutral);
+  root.style.setProperty('--ah', (Math.atan2(b, a) * 180 / Math.PI).toFixed(1));
+  root.style.setProperty('--ac', neutral ? 0 : clamp(c, .08, .16).toFixed(3));
+}
+
 let raf;
 function update(rebuildColors = true) {
   if (rebuildColors) renderColors();
+  setAccent(S.colors[0]);
   for (const k in sliders) {
     const el = $(k);
     $(k + 'V').textContent = sliders[k](S[k]);
