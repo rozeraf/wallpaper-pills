@@ -78,7 +78,10 @@ legend {
 }
 legend + * { clear: both; }
 
-.footer { margin-top: auto; padding: 4px 0 16px; }
+.footer {
+  position: sticky; bottom: 0; z-index: 1; margin: auto -16px 0; padding: 10px 16px 14px;
+  background: var(--panel); border-top: 1px solid var(--line);
+}
 
 /* ---------- строки ---------- */
 .field { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 8px 0; min-height: 28px; }
@@ -266,6 +269,7 @@ main {
   body { grid-template-columns: 320px minmax(0, 1fr); }
   main { padding: 20px; }
   aside { padding: 16px 12px 0; }
+  .footer { margin-inline: -12px; padding-inline: 12px; }
   input[type=number] { width: 56px; }
 }
 @media (min-width: 1800px) {
@@ -291,6 +295,7 @@ main {
   .actions { order: -1; margin: 10px 16px 14px; flex-wrap: nowrap; }
   .actions .btn { flex: 1; justify-content: center; padding: 0 10px; }
   aside { border-right: 0; border-top: 1px solid var(--line); overflow: visible; padding-top: 16px; }
+  .footer { position: static; margin: 4px 0 0; padding: 0 0 16px; background: none; border: 0; }
   #toast { bottom: max(16px, env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); text-align: center; }
 }
 
