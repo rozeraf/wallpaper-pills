@@ -14,6 +14,8 @@ src/
     state.js      состояние ↔ hash адреса
     render.js     геометрия, SVG и canvas
     i18n.js       строки интерфейса ru/en, переключение языка
+    picker.js     свой выбор цвета: HSV-квадрат, оттенок, hex, недавние
+    eyedropper.js пипетка: EyeDropper API, иначе кадр захвата экрана или фото
     main.js       UI и события
 build.mjs         сборка src → dist и dev-сервер (Bun.build, Bun.serve)
 ```

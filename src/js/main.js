@@ -3,6 +3,7 @@ import { clamp, toLab, randomPalette, colorName } from './color.js';
 import { DEFAULTS, MAX_COLORS, freshState, ensureColors, parseState, serializeState, presetToJson, presetFromJson } from './state.js';
 import { build, toSvg, toCanvas } from './render.js';
 import { lang, t, setLang } from './i18n.js';
+import { openPicker, closePicker } from './picker.js';
 
 const $ = id => document.getElementById(id);
 const limits = k => { const el = $(k); return el && el.min !== '' ? [+el.min, +el.max] : null; };
@@ -48,17 +49,23 @@ function randomize() {
 /* ---------- рендер UI ---------- */
 const HINTS = { auto: 'hintAuto', gradient: 'hintGradient', raw: 'hintRaw' };
 
+function swatch(btn, hex, label) {
+  btn.style.background = hex;
+  btn.setAttribute('aria-label', `${label}: ${hex}`);
+}
+
 function renderColors() {
+  closePicker();
   const box = $('colors'); box.replaceChildren();
   const shown = S.mode === 'auto' ? S.colors.slice(0, 1) : S.colors;
   shown.forEach((c, i) => {
     const chip = document.createElement('div'); chip.className = 'chip';
-    const inp = Object.assign(document.createElement('input'), { type: 'color', value: c, title: c });
-    inp.setAttribute('aria-label', `${t('color')} ${i + 1}`);
-    inp.oninput = () => { S.colors[i] = inp.value; inp.title = inp.value; update(false); };
-    chip.append(inp);
+    const sw = Object.assign(document.createElement('button'), { className: 'swatch', type: 'button' });
+    sw.setAttribute('aria-haspopup', 'dialog'); swatch(sw, c, `${t('color')} ${i + 1}`);
+    sw.onclick = () => openPicker(sw, S.colors[i], hex => { S.colors[i] = hex; swatch(sw, hex, `${t('color')} ${i + 1}`); update(false); });
+    chip.append(sw);
     if (shown.length > (S.mode === 'gradient' ? 2 : 1)) {
-      const x = Object.assign(document.createElement('button'), { textContent: '×', title: t('remove') });
+      const x = Object.assign(document.createElement('button'), { className: 'del', textContent: '×', title: t('remove') });
       x.onclick = () => { S.colors.splice(i, 1); update(); }; chip.append(x);
     }
     box.append(chip);
@@ -77,7 +84,7 @@ function syncInputs() {
   const p = `${S.w}x${S.h}`; $('preset').value = [...$('preset').options].some(o => o.value === p) ? p : 'custom';
   document.querySelector(`input[name=mode][value=${S.mode}]`).checked = true;
   document.querySelector(`input[name=stack][value=${S.stack}]`).checked = true;
-  $('bg').value = S.bg; $('reverse').checked = S.reverse;
+  swatch($('bg'), S.bg, t('bgColor')); $('reverse').checked = S.reverse;
   for (const k in sliders) $(k).value = S[k];
 }
 
@@ -125,7 +132,7 @@ for (const k of ['w', 'h']) $(k).addEventListener('change', e => {
 });
 document.querySelectorAll('input[name=mode]').forEach(r => r.onchange = () => { S.mode = r.value; ensureColors(S); update(); });
 document.querySelectorAll('input[name=stack]').forEach(r => r.onchange = () => { S.stack = r.value; update(false); });
-$('bg').oninput = e => { S.bg = e.target.value; update(false); };
+$('bg').onclick = () => openPicker($('bg'), S.bg, hex => { S.bg = hex; swatch($('bg'), hex, t('bgColor')); update(false); });
 $('reverse').onchange = e => { S.reverse = e.target.checked; update(false); };
 $('random').onclick = randomize;
 $('reset').onclick = () => { S = freshState(); syncInputs(); update(); };
@@ -136,7 +143,7 @@ addEventListener('hashchange', () => { S = loadState(); syncInputs(); update(); 
 addEventListener('keydown', e => {
   const key = e.key.toLowerCase();
   if (key !== 'r' && key !== 'к') return; // «к» — та же клавиша в русской раскладке
-  if (e.ctrlKey || e.metaKey || e.altKey || e.target.matches('input[type=number], select')) return;
+  if (e.ctrlKey || e.metaKey || e.altKey || e.target.matches('input[type=number], input[type=text], select') || e.target.closest('.picker, .eyedrop')) return;
   randomize();
 });
 
@@ -186,5 +193,5 @@ $('dlPng').onclick = () => {
   }
 }
 
-document.querySelectorAll('[data-lang]').forEach(b => b.onclick = () => { setLang(b.dataset.lang); update(); });
+document.querySelectorAll('[data-lang]').forEach(b => b.onclick = () => { setLang(b.dataset.lang); syncInputs(); update(); });
 setLang(lang); syncInputs(); update();
