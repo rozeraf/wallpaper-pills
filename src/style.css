@@ -1,17 +1,19 @@
 /* ---------- токены ---------- */
 :root {
   /* нейтральная серая шкала без оттенка */
+  /* два уровня поверхности: фон и карточка; контролы — темнее карточки, с обводкой */
   --bg: #0a0a0a;
-  --panel: #0f0f0f;
-  --card: #161616;
-  --field: #1c1c1c;
-  --hover: #262626;
-  --line: #262626;
-  --line-strong: #383838;
+  --panel: var(--bg);
+  --card: #141414;
+  --field: #0c0c0c;
+  --tabs: #1f1f1f;
+  --hover: #1c1c1c;
+  --line: rgb(255 255 255 / .08);
+  --line-strong: rgb(255 255 255 / .14);
+  --track: rgb(255 255 255 / .12);
   --text: #fafafa;
   --muted: #a1a1a1;
   --faint: #6b6b6b;
-  --seg: #1c1c1c; --seg-on: #2e2e2e;
   /* акцент — оттенок основного цвета обоев: --ah (hue) и --ac (chroma) ставит JS */
   --ah: 298; --ac: .16;
   --accent: oklch(.72 var(--ac) var(--ah));
@@ -27,9 +29,9 @@
 :root.neutral { --accent: #e5e5e5; --accent-hi: #fff; --accent-soft: rgb(255 255 255 / .14); }
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: #f5f5f5; --panel: #fafafa; --card: #ffffff; --field: #ffffff; --hover: #f0f0f0;
-    --line: #e5e5e5; --line-strong: #d4d4d4; --text: #0a0a0a; --muted: #737373; --faint: #a3a3a3;
-    --seg: #f0f0f0; --seg-on: #ffffff;
+    --bg: #fafafa; --card: #ffffff; --field: #ffffff; --tabs: #f0f0f0; --hover: #f5f5f5;
+    --line: rgb(0 0 0 / .08); --line-strong: rgb(0 0 0 / .13); --track: rgb(0 0 0 / .1);
+    --text: #0a0a0a; --muted: #737373; --faint: #a3a3a3;
     --accent: oklch(.55 var(--ac) var(--ah)); --accent-hi: oklch(.48 var(--ac) var(--ah));
     --accent-soft: oklch(.55 var(--ac) var(--ah) / .14); --on-accent: #fff;
     --shadow: 0 16px 40px rgb(0 0 0 / .12), 0 2px 6px rgb(0 0 0 / .06);
@@ -65,11 +67,11 @@ aside {
 .brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
 .logo { display: flex; height: 26px; }
 .lang { margin-left: auto; align-self: flex-start; display: flex; gap: 2px; padding: 2px; border-radius: 8px;
-  background: var(--seg); border: 1px solid var(--line); }
+  background: var(--tabs); }
 .lang button { padding: 2px 7px; border: 0; border-radius: 6px; background: none; color: var(--faint);
   font-size: 11px; font-weight: 600; letter-spacing: .04em; cursor: pointer; transition: background .15s, color .15s; }
 .lang button:hover { color: var(--text); }
-.lang [aria-pressed=true] { background: var(--seg-on); color: var(--text); box-shadow: var(--shadow-sm); }
+.lang [aria-pressed=true] { background: var(--field); color: var(--text); box-shadow: 0 0 0 1px var(--line-strong), var(--shadow-sm); }
 .logo i { width: 15px; height: 26px; border-radius: 99px; box-shadow: 0 0 0 2px var(--panel); }
 .logo i + i { margin-left: -6px; }
 .logo i:nth-child(1) { background: oklch(.92 calc(var(--ac) * .35) var(--ah)); }
@@ -82,7 +84,7 @@ fieldset {
 }
 legend {
   float: left; width: 100%; padding: 0; margin: 0 0 10px;
-  color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--text); font-size: 13.5px; font-weight: 600; letter-spacing: -.005em;
 }
 legend + * { clear: both; }
 
@@ -105,9 +107,9 @@ legend + * { clear: both; }
 /* ---------- поля ---------- */
 input[type=number], select {
   height: 32px; padding: 0 9px; border-radius: var(--r-sm);
-  background: var(--field); border: 1px solid var(--line); transition: border-color .15s;
+  background: var(--field); border: 1px solid var(--line-strong); transition: border-color .15s, background .15s;
 }
-input[type=number]:hover, select:hover { border-color: var(--line-strong); }
+input[type=number]:hover, select:hover { background: var(--hover); }
 input[type=number] { width: 62px; text-align: center; font-variant-numeric: tabular-nums; -moz-appearance: textfield; appearance: textfield; }
 input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 select {
@@ -135,18 +137,18 @@ input[type=range] {
 }
 input[type=range]::-webkit-slider-runnable-track {
   height: 4px; border-radius: 99px;
-  background: linear-gradient(var(--accent), var(--accent)) 0 / var(--p) 100% no-repeat, var(--line);
+  background: linear-gradient(var(--accent), var(--accent)) 0 / var(--p) 100% no-repeat, var(--track);
 }
-input[type=range]::-moz-range-track { height: 4px; border-radius: 99px; background: var(--line); }
+input[type=range]::-moz-range-track { height: 4px; border-radius: 99px; background: var(--track); }
 input[type=range]::-moz-range-progress { height: 4px; border-radius: 99px; background: var(--accent); }
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5px; border-radius: 50%;
-  background: #fff; border: 0; box-shadow: 0 0 0 3px var(--accent), 0 2px 6px rgb(0 0 0 / .35);
+  background: #fff; border: 0; box-shadow: 0 0 0 2px var(--accent), 0 1px 4px rgb(0 0 0 / .35);
   transition: transform .15s var(--ease);
 }
 input[type=range]::-moz-range-thumb {
   width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 0;
-  box-shadow: 0 0 0 3px var(--accent), 0 2px 6px rgb(0 0 0 / .35); transition: transform .15s var(--ease);
+  box-shadow: 0 0 0 2px var(--accent), 0 1px 4px rgb(0 0 0 / .35); transition: transform .15s var(--ease);
 }
 input[type=range]:hover::-webkit-slider-thumb, input[type=range]:active::-webkit-slider-thumb { transform: scale(1.18); }
 input[type=range]:hover::-moz-range-thumb, input[type=range]:active::-moz-range-thumb { transform: scale(1.18); }
@@ -159,7 +161,7 @@ input[type=range]:disabled { opacity: .35; cursor: not-allowed; }
 .switch {
   -webkit-appearance: none; appearance: none; flex: none; margin: 0; cursor: pointer;
   width: 36px; height: 20px; border-radius: 99px; position: relative;
-  background: var(--line-strong); transition: background .2s var(--ease);
+  background: var(--track); box-shadow: inset 0 0 0 1px var(--line); transition: background .2s var(--ease);
 }
 .switch::after {
   content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%;
@@ -171,16 +173,16 @@ input[type=range]:disabled { opacity: .35; cursor: not-allowed; }
 /* сегменты */
 .seg {
   display: flex; gap: 2px; padding: 3px; border-radius: var(--r); position: relative;
-  background: var(--seg); border: 1px solid var(--line);
+  background: var(--tabs);
 }
 .seg-wide { margin-bottom: 12px; }
 .seg input { position: absolute; opacity: 0; pointer-events: none; }
 .seg label {
-  flex: 1; text-align: center; padding: 5px 10px; border-radius: 7px; cursor: pointer;
+  flex: 1; text-align: center; padding: 4px 10px; border-radius: 6px; cursor: pointer;
   color: var(--muted); white-space: nowrap; transition: background .15s, color .15s;
 }
 .seg label:hover { color: var(--text); }
-.seg input:checked + label { background: var(--seg-on); color: var(--text); box-shadow: var(--shadow-sm); }
+.seg input:checked + label { background: var(--field); color: var(--text); box-shadow: 0 0 0 1px var(--line-strong), var(--shadow-sm); }
 .seg input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: -2px; }
 
 /* чипы цветов */
@@ -200,11 +202,11 @@ input[type=range]:disabled { opacity: .35; cursor: not-allowed; }
 /* ---------- кнопки ---------- */
 .btn {
   display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px;
-  border-radius: var(--r); border: 1px solid var(--line); background: var(--hover);
+  border-radius: var(--r); border: 1px solid var(--line-strong); background: var(--field);
   cursor: pointer; white-space: nowrap; font-weight: 500;
   transition: border-color .15s, background .15s, transform .1s var(--ease);
 }
-.btn:hover { border-color: var(--line-strong); }
+.btn:hover { background: var(--hover); }
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: .6; cursor: progress; }
 .btn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -248,7 +250,7 @@ main {
 #palette button {
   display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px 3px 4px; cursor: pointer;
   font: 11.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--muted);
-  background: var(--card); border: 1px solid var(--line); border-radius: 99px;
+  background: var(--field); border: 1px solid var(--line); border-radius: 99px;
   transition: color .15s, border-color .15s;
 }
 #palette button:hover { color: var(--text); border-color: var(--line-strong); }
@@ -256,7 +258,7 @@ main {
 
 .actions {
   display: flex; gap: 6px; padding: 6px; flex-wrap: wrap; justify-content: center;
-  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-sm);
 }
 .actions .btn { border-color: transparent; background: transparent; }
 .actions .btn:hover { background: var(--hover); }
