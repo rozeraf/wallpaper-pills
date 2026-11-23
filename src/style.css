@@ -36,7 +36,7 @@
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; height: 100vh; height: 100svh;
-  display: grid; grid-template-columns: 340px 1fr;
+  display: grid; grid-template-columns: 340px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr);
   font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   background: var(--bg); color: var(--text);
   -webkit-font-smoothing: antialiased;
@@ -97,12 +97,12 @@ input[type=number], select {
   background: var(--field); border: 1px solid var(--line); transition: border-color .15s;
 }
 input[type=number]:hover, select:hover { border-color: var(--line-strong); }
-input[type=number] { width: 66px; text-align: center; font-variant-numeric: tabular-nums; -moz-appearance: textfield; appearance: textfield; }
+input[type=number] { width: 62px; text-align: center; font-variant-numeric: tabular-nums; -moz-appearance: textfield; appearance: textfield; }
 input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 select {
-  -webkit-appearance: none; appearance: none; padding-right: 28px; cursor: pointer;
+  -webkit-appearance: none; appearance: none; padding-right: 24px; cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%238e8e9c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 8px center; background-size: 12px;
+  background-repeat: no-repeat; background-position: right 7px center; background-size: 12px;
 }
 #preset { flex: 1; min-width: 0; }
 
@@ -159,7 +159,7 @@ input[type=range]:disabled { opacity: .35; cursor: not-allowed; }
 
 /* сегменты */
 .seg {
-  display: flex; gap: 2px; padding: 3px; border-radius: var(--r);
+  display: flex; gap: 2px; padding: 3px; border-radius: var(--r); position: relative;
   background: var(--field); border: 1px solid var(--line);
 }
 .seg-wide { margin-bottom: 12px; }
@@ -206,7 +206,7 @@ input[type=range]:disabled { opacity: .35; cursor: not-allowed; }
 
 /* перетаскивание пресета на страницу */
 body.dropping::after {
-  content: "Отпусти, чтобы загрузить пресет"; position: fixed; inset: 12px; z-index: 20;
+  content: attr(data-drop); position: fixed; inset: 12px; z-index: 20;
   display: grid; place-items: center; border-radius: var(--r-lg);
   border: 2px dashed var(--accent); background: rgb(12 12 15 / .82); color: #fff;
   font-size: 18px; font-weight: 500; pointer-events: none;
@@ -222,19 +222,19 @@ kbd {
 /* ---------- сцена ---------- */
 main {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
-  padding: 28px; min-width: 0;
+  padding: 28px; min-width: 0; min-height: 0;
   background: radial-gradient(ellipse at 50% 40%, var(--glow), transparent 65%);
 }
-.stage { display: flex; justify-content: center; width: 100%; }
+.stage { flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; container-type: size; }
 #preview {
   --ar: 16/9; aspect-ratio: var(--ar);
-  width: min(100%, calc((100svh - 170px) * (var(--ar))));
+  width: min(100cqw, calc(100cqh * (var(--ar))));
   border-radius: 10px; overflow: hidden; box-shadow: var(--shadow);
   outline: 1px solid rgb(255 255 255 / .06); outline-offset: -1px;
 }
 #preview svg { display: block; width: 100%; height: 100%; }
 
-#palette { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 900px; }
+#palette { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 900px; flex: none; }
 #palette button {
   display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px 3px 4px; cursor: pointer;
   font: 11.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--muted);
@@ -262,11 +262,48 @@ main {
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---------- адаптив ---------- */
+@media (max-width: 1100px) and (min-width: 801px) {
+  body { grid-template-columns: 320px minmax(0, 1fr); }
+  main { padding: 20px; }
+  aside { padding: 16px 12px 0; }
+  input[type=number] { width: 56px; }
+}
+@media (min-width: 1800px) {
+  body { grid-template-columns: 380px minmax(0, 1fr); }
+  main { padding: 40px; }
+}
+
+/* телефон: превью прилипает сверху, настройки прокручиваются под ним */
 @media (max-width: 800px) {
-  body { grid-template-columns: 1fr; height: auto; }
-  aside { border-right: 0; border-top: 1px solid var(--line); overflow: visible; }
-  main { order: -1; padding: 16px; gap: 14px; }
-  #preview { width: min(100%, calc(55svh * (var(--ar)))); }
+  body { display: flex; flex-direction: column; height: auto; }
+  main { display: contents; }
+  .stage {
+    order: -3; position: sticky; top: 0; z-index: 5; flex: none; container-type: normal; padding: 12px 16px;
+    background: color-mix(in srgb, var(--bg) 94%, transparent); backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--line);
+  }
+  #preview { border-radius: 8px; width: min(100%, calc(38svh * (var(--ar)))); box-shadow: 0 6px 20px rgb(0 0 0 / .3); }
+  #palette {
+    order: -2; max-width: none; padding: 12px 16px 2px; flex-wrap: nowrap; overflow-x: auto;
+    justify-content: safe center; scrollbar-width: none;
+  }
+  #palette button { flex: none; }
+  .actions { order: -1; margin: 10px 16px 14px; flex-wrap: nowrap; }
+  .actions .btn { flex: 1; justify-content: center; padding: 0 10px; }
+  aside { border-right: 0; border-top: 1px solid var(--line); overflow: visible; padding-top: 16px; }
+  #toast { bottom: max(16px, env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); text-align: center; }
+}
+
+/* сенсорные экраны: крупнее цели, без автозума iOS на полях */
+@media (pointer: coarse) {
+  input[type=number], select { font-size: 16px; height: 38px; }
+  input[type=number] { width: 58px; padding: 0 4px; }
+  select { padding: 0 24px 0 8px; background-position: right 6px center; }
+  input[type=range] { height: 32px; }
+  input[type=range]::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: -8px; }
+  input[type=range]::-moz-range-thumb { width: 20px; height: 20px; }
+  .field.slider { margin: 2px 0; }
+  .lang button { padding: 5px 10px; font-size: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

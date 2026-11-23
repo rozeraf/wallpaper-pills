@@ -21,6 +21,7 @@ const DICT = {
     png: 'Скачать PNG', link: 'Ссылка', preparing: 'Готовлю…', copyHex: 'Копировать',
     copied: 'Скопировано', copyFailed: 'Не удалось скопировать', linkCopied: 'Ссылка скопирована',
     presetLoaded: 'Пресет загружен', presetFailed: 'Не удалось прочитать пресет',
+    drop: 'Отпусти, чтобы загрузить пресет',
     pngFailed: 'Браузер не смог создать PNG такого размера — попробуй SVG',
   },
   en: {
@@ -45,6 +46,7 @@ const DICT = {
     png: 'Download PNG', link: 'Link', preparing: 'Preparing…', copyHex: 'Copy',
     copied: 'Copied', copyFailed: 'Could not copy', linkCopied: 'Link copied',
     presetLoaded: 'Preset loaded', presetFailed: 'Could not read the preset',
+    drop: 'Drop to load the preset',
     pngFailed: 'The browser could not create a PNG this large — try SVG',
   },
 };
@@ -61,6 +63,7 @@ export function setLang(l) {
   try { localStorage.setItem('lang', l); } catch {}
   document.documentElement.lang = l;
   document.title = t('title');
+  document.body.dataset.drop = t('drop');
   document.querySelector('meta[name=description]').content = t('description');
   for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
   for (const el of document.querySelectorAll('[data-i18n-suffix]'))
