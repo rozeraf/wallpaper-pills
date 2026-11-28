@@ -8,8 +8,9 @@
 - **Вся работа ведётся в ветке `dev`.** Перед началом работы: `git switch dev`. Не коммить напрямую в `main`.
 - `main` — продакшен. В неё попадает только готовое и проверенное: merge `dev` → `main` и push,
   когда пользователь явно скажет, что всё готово.
-- Push в `dev` выкладывает превью на `dev.wallpaper-pills.pages.dev`,
-  push в `main` — продакшен на `wallpaper-pills.pages.dev` (GitHub Actions, `.github/workflows/deploy.yml`).
+- Push в `dev` выкладывает превью на `dev.wallpaper-pills.pages.dev`. Продакшен (`wallpaper-pills.pages.dev`)
+  выкладывается только по тегу `vX.Y.Z` (SemVer) на коммите из `main`; push в `main` сам ничего не деплоит
+  (GitHub Actions, `.github/workflows/deploy.yml`). Тег ставить, когда пользователь скажет выпустить релиз.
 
 ## Перед коммитом
 - Сообщения коммитов — на английском, в формате Conventional Commits (`feat:`, `fix:`, `chore:`…).

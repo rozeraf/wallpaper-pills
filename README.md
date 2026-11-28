@@ -30,7 +30,8 @@ Brotli/gzip Cloudflare включает сам при отдаче, заране
 
 ## Ветки и деплой
 - `dev` — рабочая ветка, push выкладывает превью на `dev.wallpaper-pills.pages.dev`.
-- `main` — продакшен, push выкладывает `wallpaper-pills.pages.dev`.
+- `main` — стабильная ветка. Продакшен (`wallpaper-pills.pages.dev`) выкладывается по тегу `vX.Y.Z`
+  (SemVer) на коммите из `main`: `git tag v1.2.0 && git push origin v1.2.0`.
 
 Деплой делает GitHub Actions (`.github/workflows/deploy.yml`): `bun run build` →
 `wrangler pages deploy dist`. Секреты репозитория:
