@@ -18,6 +18,8 @@ src/
     eyedropper.js пипетка: EyeDropper API, иначе кадр захвата экрана или фото
     main.js       UI и события
 build.mjs         сборка src → dist и dev-сервер (Bun.build, Bun.serve)
+presets/          подборка готовых пресетов (в сборку не входит)
+scripts/          вспомогательные скрипты
 ```
 
 ## Разработка
@@ -61,6 +63,8 @@ https://wallpaper-pills.pages.dev/#mode=gradient&colors=FDE68A,F472B6,4C1D95&cou
 { "app": "wallpaper-pills", "version": 1, "settings": { "mode": "gradient", "colors": ["#fde68a", "#4c1d95"], "...": "..." } }
 ```
 Принимается и голый объект настроек; поля те же, что в ссылках-рецептах, неизвестные и некорректные игнорируются.
+
+Готовые пресеты лежат в [`presets/`](presets): скачай JSON и перетащи на страницу.
 
 ## Горячие клавиши
 - **R** — случайная палитра (в текущем режиме цвета).

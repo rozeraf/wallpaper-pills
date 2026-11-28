@@ -1,0 +1,32 @@
+{
+  "app": "wallpaper-pills",
+  "version": 1,
+  "settings": {
+    "w": 1920,
+    "h": 1080,
+    "mode": "raw",
+    "colors": [
+      "#ffbe0b",
+      "#fd8309",
+      "#fc4a16",
+      "#fe1951",
+      "#dc1092",
+      "#9530da",
+      "#6459f4",
+      "#3a86ff"
+    ],
+    "bg": "#1c1c1c",
+    "reverse": false,
+    "light": 0.95,
+    "dark": 0.2,
+    "count": 8,
+    "fit": 0.666,
+    "height": 0.5,
+    "gap": -0.35,
+    "radius": 1,
+    "angle": 0,
+    "shadow": 0,
+    "stack": "right",
+    "bgl": 0
+  }
+}
