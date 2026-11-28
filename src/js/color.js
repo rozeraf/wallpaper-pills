@@ -29,7 +29,6 @@ function labToLinear([L, a, b]) {
 
 const inGamut = rgb => rgb.every(c => c >= -1e-4 && c <= 1 + 1e-4);
 
-// Цвета вне sRGB не обрезаем по каналам (это сдвигает оттенок), а уменьшаем хрому при том же L и hue.
 const HUES = [['pink', 0], ['red', 25], ['orange', 55], ['yellow', 100], ['lime', 125], ['green', 145], ['teal', 175],
   ['cyan', 200], ['blue', 260], ['indigo', 282], ['violet', 300], ['purple', 315], ['magenta', 335]];
 
@@ -52,6 +51,7 @@ export function colorName(hex) {
   return n;
 }
 
+// Цвета вне sRGB не обрезаем по каналам (это сдвигает оттенок), а уменьшаем хрому при том же L и hue.
 export function fromLab([L, a, b]) {
   L = clamp(L, 0, 1);
   let rgb = labToLinear([L, a, b]);
@@ -65,6 +65,16 @@ export function fromLab([L, a, b]) {
 }
 
 export const fromLch = (L, C, h) => fromLab([L, C * Math.cos(h), C * Math.sin(h)]);
+
+// Тёмный фон в тон палитры: среднее a/b в OKLab даёт оттенок, взвешенный по хроме, и сам уходит в серый
+// у разноцветных палитр. Хрома растёт с яркостью фона; коэффициент подобран по готовым обоям.
+export function tintedBg(colors, L) {
+  let x = 0, y = 0;
+  for (const c of colors) { const [, a, b] = toLab(c); x += a; y += b; }
+  x /= colors.length; y /= colors.length;
+  const C = Math.hypot(x, y), k = C ? Math.min(C * L * 1.4, .06) / C : 0;
+  return fromLab([L, x * k, y * k]);
+}
 
 export function gradient(stops, n) {
   const labs = stops.map(toLab);

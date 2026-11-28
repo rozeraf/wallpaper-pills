@@ -2,7 +2,7 @@
 import { clamp } from './color.js';
 
 export const DEFAULTS = Object.freeze({ w:1920, h:1080, mode:'auto', colors:['#7b3fd0'], bg:'#000000', reverse:false,
-  light:.95, dark:.2, count:8, fit:.69, height:.56, gap:-.3, radius:1, angle:0, shadow:0, stack:'left' });
+  light:.95, dark:.2, count:8, fit:.69, height:.56, gap:-.3, radius:1, angle:0, shadow:0, stack:'left', bgl:0 });
 
 const ENUMS = { mode: ['auto', 'gradient', 'raw'], stack: ['left', 'right'] };
 const HEX = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i;
@@ -39,7 +39,8 @@ function normalize(entries, limits) {
     else if (k in ENUMS) { if (ENUMS[k].includes(v)) s[k] = v; }
     else if (typeof DEFAULTS[k] === 'number') {
       const n = typeof v === 'number' ? v : typeof v === 'string' ? parseFloat(v) : NaN, lim = limits(k);
-      if (Number.isFinite(n)) s[k] = lim ? clamp(n, lim[0], lim[1]) : n;
+      // bgl = 0 — автоподбор фона выключен, хотя у слайдера минимум больше нуля
+      if (Number.isFinite(n)) s[k] = lim && !(k === 'bgl' && n === 0) ? clamp(n, lim[0], lim[1]) : n;
     }
   }
   return ensureColors(s);

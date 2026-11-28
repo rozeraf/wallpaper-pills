@@ -1,5 +1,5 @@
 // Геометрия и отрисовка в SVG / canvas.
-import { gradient, shades } from './color.js';
+import { gradient, shades, tintedBg } from './color.js';
 
 export function build(S) {
   let colors;
@@ -15,7 +15,7 @@ export function build(S) {
   let rects = colors.map((c, i) => ({ x: x0 + i * (pw + gap), y: y0, c }));
   if (S.stack === 'left') rects = rects.reverse(); // рисуются последними → оказываются сверху
   const blur = S.shadow * Math.min(pw, ph) * .12;
-  return { W, H, pw, ph, r, rects, colors, blur, alpha: .25 + S.shadow * .45, bg: S.bg, angle: S.angle };
+  return { W, H, pw, ph, r, rects, colors, blur, alpha: .25 + S.shadow * .45, bg: S.bgl ? tintedBg(colors, S.bgl) : S.bg, angle: S.angle };
 }
 
 export function toSvg(g) {

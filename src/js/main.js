@@ -12,7 +12,7 @@ const loadState = () => parseState(location.hash, limits);
 let S = loadState();
 
 const pct = v => Math.round(v * 100) + '%';
-const sliders = { count: v => v, fit: pct, height: pct, gap: pct, radius: pct, shadow: pct,
+const sliders = { count: v => v, fit: pct, height: pct, gap: pct, radius: pct, shadow: pct, bgl: pct,
                   angle: v => v + '°', light: v => v.toFixed(2), dark: v => v.toFixed(2) };
 
 /* ---------- мелкие помощники ---------- */
@@ -84,7 +84,8 @@ function syncInputs() {
   const p = `${S.w}x${S.h}`; $('preset').value = [...$('preset').options].some(o => o.value === p) ? p : 'custom';
   document.querySelector(`input[name=mode][value=${S.mode}]`).checked = true;
   document.querySelector(`input[name=stack][value=${S.stack}]`).checked = true;
-  swatch($('bg'), S.bg, t('bgColor')); $('reverse').checked = S.reverse;
+  $('reverse').checked = S.reverse;
+  $('bgAuto').checked = S.bgl > 0; $('bglRow').hidden = !S.bgl;
   for (const k in sliders) $(k).value = S[k];
 }
 
@@ -110,6 +111,7 @@ function update(rebuildColors = true) {
   raf = requestAnimationFrame(() => {
     const g = build(S);
     $('preview').innerHTML = toSvg(g);
+    swatch($('bg'), g.bg, t('bgColor'));
     $('preview').style.setProperty('--ar', `${g.W}/${g.H}`);
     $('palette').replaceChildren(...g.colors.map(c => {
       const b = document.createElement('button'); b.title = t('copyHex'); b.dataset.c = c;
@@ -132,7 +134,15 @@ for (const k of ['w', 'h']) $(k).addEventListener('change', e => {
 });
 document.querySelectorAll('input[name=mode]').forEach(r => r.onchange = () => { S.mode = r.value; ensureColors(S); update(); });
 document.querySelectorAll('input[name=stack]').forEach(r => r.onchange = () => { S.stack = r.value; update(false); });
-$('bg').onclick = () => openPicker($('bg'), S.bg, hex => { S.bg = hex; swatch($('bg'), hex, t('bgColor')); update(false); });
+let lastBgl = .18;
+$('bg').onclick = () => openPicker($('bg'), build(S).bg, hex => {
+  if (S.bgl) lastBgl = S.bgl;
+  S.bg = hex; S.bgl = 0; syncInputs(); update(false); // ручной выбор отключает автоподбор
+});
+$('bgAuto').onchange = e => {
+  if (S.bgl) lastBgl = S.bgl;
+  S.bgl = e.target.checked ? lastBgl : 0; syncInputs(); update(false);
+};
 $('reverse').onchange = e => { S.reverse = e.target.checked; update(false); };
 $('random').onclick = randomize;
 $('reset').onclick = () => { S = freshState(); syncInputs(); update(); };
